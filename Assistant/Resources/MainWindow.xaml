@@ -1,0 +1,51 @@
+<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        ResizeMode="NoResize" 
+        Title="AutoPilot Assistant" Height="450" Width="800">
+        
+    <Grid>
+        <!--Left column-->
+        <Button Content="Import Wi-Fi profile(s)" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="32" Width="250"/>
+        <Button Content="Connect to available Wi-Fi" HorizontalAlignment="Left" Margin="10,47,0,0" VerticalAlignment="Top" Height="32" Width="250"/>
+
+        <!--Right column-->
+        <Button Content="Clear TPM" Name="Button_ClearTPM" HorizontalAlignment="Left" Margin="265,10,0,0" VerticalAlignment="Top" Height="32" Width="250"/>
+        <Button Content="Initialize TPM" Name="Button_InitTPM" HorizontalAlignment="Left" Margin="265,47,0,0" VerticalAlignment="Top" Height="32" Width="250"/>
+
+        <Image Name="Logo" HorizontalAlignment="Right" Height="250" Margin="0,-72,10,0" VerticalAlignment="Top" Width="250" Source="./logo.png" Stretch="Uniform" StretchDirection="Both"/>
+        <Separator HorizontalAlignment="Left" Margin="341,187,0,0" VerticalAlignment="Top" Height="8" Width="384" RenderTransformOrigin="0.5,0.5">
+            <Separator.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="-90"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Separator.RenderTransform>
+        </Separator>
+
+        <Grid Margin="545,10,10,10">
+            <!--Network indicator-->
+            <Ellipse Name="StatusIndicator_NetConnectionAvailable"  HorizontalAlignment="Left" Height="15" Width="15" Margin="4,8,0,0" Fill="Red" VerticalAlignment="Top"/>
+            <Label Content="Network connection" HorizontalAlignment="Left" Margin="24,3,0,0" VerticalAlignment="Top" Width="212"/>
+
+            <!--Intune servers pingable-->
+            <Ellipse Name="StatusIndicator_IntunePingResponse"  HorizontalAlignment="Left" Height="15" Width="15" Margin="4,34,0,0" Fill="Red" VerticalAlignment="Top"/>
+            <Label Content="Intune is pingable" HorizontalAlignment="Left" Margin="24,27,0,0" VerticalAlignment="Top" Width="212"/>
+
+            <!-- Certreq's AIK vertificate request result-->
+            <Ellipse Name="StatusIndicator_AIKCertRequestStatus"  HorizontalAlignment="Left" Height="15" Width="15" Margin="4,58,0,0" Fill="Red" VerticalAlignment="Top"/>
+            <Label Content="AIK certificate status" HorizontalAlignment="Left" Margin="24,53,0,0" VerticalAlignment="Top" Width="212"/>
+
+            <!-- Unimplemented indicator-->
+            <Ellipse Name="StatusIndicator_UnimplementedIndicator"  HorizontalAlignment="Left" Height="15" Width="15" Margin="4,84,0,0" Fill="Orange" VerticalAlignment="Top"/>
+            <Label Content="Unimplemented indicator" HorizontalAlignment="Left" Margin="24,79,0,0" VerticalAlignment="Top" Width="212"/>
+        </Grid>
+
+        <Label Name="MainStatusMessage" Content="Coming from Xaml here!" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="533" Height="28"/>
+
+    </Grid>
+</Window>
