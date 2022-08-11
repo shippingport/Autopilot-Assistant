@@ -17,7 +17,7 @@
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Xml")
-Add-Type -AssemblyName PresentationFramework
+Add-Type -AssemblyName PresentationFramework,PresentationCore
 
 # Start multithreading the UI
 $global:SyncHash = [hashtable]::Synchronized(@{})
@@ -50,14 +50,32 @@ $PSThread_UI = [powershell]::Create().AddScript({
 
 <Grid>
 <!--Left column-->
-<Button Content="Import Wi-Fi profile(s)" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="32" Width="250"/>
-<Button Content="Connect to available Wi-Fi" HorizontalAlignment="Left" Margin="10,47,0,0" VerticalAlignment="Top" Height="32" Width="250"/>
 
-<!--Right column-->
-<Button Content="Clear TPM" Name="Button_ClearTPM" HorizontalAlignment="Left" Margin="265,10,0,0" VerticalAlignment="Top" Height="32" Width="250"/>
-<Button Content="Initialize TPM" Name="Button_InitTPM" HorizontalAlignment="Left" Margin="265,47,0,0" VerticalAlignment="Top" Height="32" Width="250"/>
+    <GroupBox Header="WiFi" Margin="10,4,538,304">
+        <Grid Height="86">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20*"/>
+                <ColumnDefinition Width="213*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Import Wi-Fi profile(s)" Name="Button_ImportWiFiXML" HorizontalAlignment="Left" VerticalAlignment="Top" Height="32" Width="213" Margin="10,10,0,0" Grid.ColumnSpan="2"/>
+            <Button Content="Connect to available Wi-Fi" Name="Button_ConnectToWiFi" HorizontalAlignment="Left" Margin="10,47,0,0" VerticalAlignment="Top" Height="32" Width="213" Grid.ColumnSpan="2"/>
+        </Grid>
+    </GroupBox>
 
-<Image Name="Logo" HorizontalAlignment="Right" Height="250" Margin="0,-72,10,0" VerticalAlignment="Top" Width="250" Source="./logo.png" Stretch="Uniform" StretchDirection="Both"/>
+
+    <!--Right column-->
+
+    <GroupBox Header="TPM" Margin="266,4,282,304">
+        <Grid Height="86">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20*"/>
+                <ColumnDefinition Width="213*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Clear TPM" Name="Button_ClearTPM" HorizontalAlignment="Left" VerticalAlignment="Top" Height="32" Width="213" Margin="10,10,0,0" Grid.ColumnSpan="2"/>
+            <Button Content="Initialize TPM" Name="Button_InitTPM" HorizontalAlignment="Left" Margin="10,47,0,0" VerticalAlignment="Top" Height="32" Width="213" Grid.ColumnSpan="2"/>
+        </Grid>
+    </GroupBox>
+
     <Separator HorizontalAlignment="Left" Margin="341,187,0,0" VerticalAlignment="Top" Height="8" Width="384" RenderTransformOrigin="0.5,0.5">
         <Separator.RenderTransform>
             <TransformGroup>
@@ -69,24 +87,35 @@ $PSThread_UI = [powershell]::Create().AddScript({
         </Separator.RenderTransform>
     </Separator>
 
-    <Grid Margin="545,10,10,10">
+    <Grid Margin="545,0,0,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="129*"/>
+            <RowDefinition Height="73*"/>
+        </Grid.RowDefinitions>
+        <Label Content="Checklist" HorizontalAlignment="Left" Margin="-9,-4,0,0" VerticalAlignment="Top" Width="248" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontSize="16" FontWeight="Normal" FontFamily="Segoe UI Semibold"/>
+
         <!--Network indicator-->
-        <Ellipse Name="StatusIndicator_NetConnectionAvailable"  HorizontalAlignment="Left" Height="15" Width="15" Margin="4,8,0,0" Fill="Red" VerticalAlignment="Top"/>
-        <Label Content="Network connection" HorizontalAlignment="Left" Margin="24,3,0,0" VerticalAlignment="Top" Width="212"/>
+        <Ellipse Name="StatusIndicator_NetConnectionAvailable"  HorizontalAlignment="Left" Height="15" Width="15" Margin="-3,32,0,0" Fill="Red" VerticalAlignment="Top"/>
+        <Label Content="Network connection" HorizontalAlignment="Left" Margin="17,27,0,0" VerticalAlignment="Top" Width="212"/>
 
         <!--Intune servers pingable-->
-        <Ellipse Name="StatusIndicator_IntunePingResponse"  HorizontalAlignment="Left" Height="15" Width="15" Margin="4,34,0,0" Fill="Red" VerticalAlignment="Top"/>
-        <Label Content="Intune is pingable" HorizontalAlignment="Left" Margin="24,27,0,0" VerticalAlignment="Top" Width="212"/>
+        <Ellipse Name="StatusIndicator_IntunePingResponse"  HorizontalAlignment="Left" Height="15" Width="15" Margin="-3,58,0,0" Fill="Red" VerticalAlignment="Top"/>
+        <Label Content="Intune is pingable" HorizontalAlignment="Left" Margin="17,51,0,0" VerticalAlignment="Top" Width="212"/>
 
         <!-- Certreq's AIK vertificate request result-->
-        <Ellipse Name="StatusIndicator_AIKCertRequestStatus"  HorizontalAlignment="Left" Height="15" Width="15" Margin="4,58,0,0" Fill="Red" VerticalAlignment="Top"/>
-        <Label Content="AIK certificate status" HorizontalAlignment="Left" Margin="24,53,0,0" VerticalAlignment="Top" Width="212"/>
+        <Ellipse Name="StatusIndicator_AIKCertRequestStatus" ToolTipService.ToolTip="Red = certificate was not issued. Consider clearing the TPM."  HorizontalAlignment="Left" Height="15" Width="15" Margin="-3,82,0,0" Fill="Red" VerticalAlignment="Top"/>
+        <Label Content="AIK certificate status" HorizontalAlignment="Left" Margin="17,77,0,0" VerticalAlignment="Top" Width="212"/>
 
-        <!-- Unimplemented indicator-->
-        <Ellipse Name="StatusIndicator_UnimplementedIndicator"  HorizontalAlignment="Left" Height="15" Width="15" Margin="4,84,0,0" Fill="Orange" VerticalAlignment="Top"/>
-        <Label Content="Unimplemented indicator" HorizontalAlignment="Left" Margin="24,79,0,0" VerticalAlignment="Top" Width="212"/>
+        <!-- AzureADJoined status -->
+        <Ellipse Name="StatusIndicator_AzureADJoinedIndicator" ToolTipService.ToolTip="" HorizontalAlignment="Left" Height="15" Width="15" Margin="-3,108,0,0" Fill="Orange" VerticalAlignment="Top"/>
+        <Label Content="Azure AD joined status" Name="Label_AzureADJoinStatus" HorizontalAlignment="Left" Margin="17,103,0,0" VerticalAlignment="Top" Width="212"/>
+    
+        <!--Shutdown and reboot buttons-->
+        <Button Content="Reboot" Name="Button_Reboot" HorizontalAlignment="Left" Height="32" Width="115" Margin="0,114,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <Button Content="Shut down" Name="Button_Shutdown" HorizontalAlignment="Left" Height="32" Width="115" Margin="123,114,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+
     </Grid>
-
+    
     <Label Name="MainStatusMessage" Content="Starting up..." HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="533" Height="28"/>
 
 </Grid>
@@ -131,18 +160,45 @@ $PSThread_TrafficLightChecks = [powershell]::Create().AddScript({
         $SyncHash.StatusIndicator_IntunePingResponse.Dispatcher.Invoke([action]{$SyncHash.StatusIndicator_IntunePingResponse.Fill = "Red"},9)
     }
 
+    $dsregresult = (dsregcmd /status)
+    $dsregAzureADJoinedResult = $dsregresult | Select-String -Pattern "AzureADJoined"
+    $dsregAzureADJoinedResultTrimmed = $dsregAzureADJoinedResult.ToString().Trim(" ")
+    
+    if(($dsregAzureADJoinedResultTrimmed -eq "AzureAdJoined : YES" )){
+        $dsregTenantName = $dsregresult | Select-String -Pattern "TenantName"
+        # this is ugly as sin but it does work...
+        # We really should loop trough a chararray but whatever
+        $dsregTenantNameTrimmed = $dsregTenantName.ToString().Trim(" ","T","e","n","a","n","t","N","a","m","e"," ",":"," ")
+
+        $SyncHash.StatusIndicator_AzureADJoinedIndicator.Dispatcher.Invoke([action]{$SyncHash.StatusIndicator_AzureADJoinedIndicator.Fill = "Green"},9)
+      # $SyncHash.StatusIndicator_AzureADJoinedIndicator.Dispatcher.Invoke([action]{$SyncHash.StatusIndicator_AzureADJoinedIndicator.ToolTip.ToolTipService = "Device is joined to tenant " + $dsregTenantNameTrimmed},9)
+        $SyncHash.Label_AzureADJoinStatus.Dispatcher.Invoke([action]{$SyncHash.Label_AzureADJoinStatus.Content = "AAD joined to " + $dsregTenantNameTrimmed},9)
+    } else {
+        $SyncHash.StatusIndicator_AzureADJoinedIndicator.Dispatcher.Invoke([action]{$SyncHash.StatusIndicator_AzureADJoinedIndicator.Fill = "Red"},9)
+        $SyncHash.Label_AzureADJoinStatus.Dispatcher.Invoke([action]{$SyncHash.Label_AzureADJoinStatus.Content = "Device is not AAD joined"},9)
+    }
+
+
+
     # Intel Tiger Lake: check if TPM attestation is working or not, otherwise clear TPM manually
     $certreq = (certreq -enrollaik -config '""')
     if(($LastExitCode -eq 0))
     {
         $SyncHash.StatusIndicator_AIKCertRequestStatus.Dispatcher.Invoke([action]{$SyncHash.StatusIndicator_AIKCertRequestStatus.Fill = "Green"},9)
+        $SyncHash.StatusIndicator_AIKCertRequestStatus.Dispatcher.Invoke([action]{$SyncHash.StatusIndicator_AIKCertRequestStatus.ToolTip = "Green = The certificate was issued. TPM attestation succeeded."},9)
     }
     elseif (($LastExitCode -eq "-2145844848")) {
         $SyncHash.StatusIndicator_AIKCertRequestStatus.Dispatcher.Invoke([action]{$SyncHash.StatusIndicator_AIKCertRequestStatus.Fill = "Orange"},9) # HTTP_BADREQUEST"
+        $SyncHash.StatusIndicator_AIKCertRequestStatus.Dispatcher.Invoke([action]{$SyncHash.StatusIndicator_AIKCertRequestStatus.ToolTip = "Orange = certreq returned HTTP_BADREQUEST."},9)
     }
     else {
         $SyncHash.StatusIndicator_AIKCertRequestStatus.Dispatcher.Invoke([action]{$SyncHash.StatusIndicator_AIKCertRequestStatus.Fill = "Red"},9) # Any other error condition
+        # Don't need to update the tooltip here, as red is the default state and is defined in the xaml.
     }
+
+
+
+
     #endregion checks
 
     $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessage.Content = "Ready."},9)
@@ -166,3 +222,25 @@ $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessa
 
 $PSThread_TrafficLightChecks.Runspace = $TrafficLightRunspace
 $invoke_TrafficLights = $PSThread_TrafficLightChecks.BeginInvoke()
+
+$SyncHash.Button_ClearTPM.Add_click({
+    $TPMClearResult = [System.Windows.MessageBox]::Show("Are you sure you want to clear the TPM?","Clear TPM?",4)
+    if($TPMClearResult -eq 6){ # "6" is the return value for "yes"
+        # Testing thingy, don't want to clear my TPM in production
+        start powershell { Test-Connection -ComputerName endpoint.microsoft.com -Count 1 }# Clear-Tpm -UsePPI}
+        $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessage.Content = "TPM was cleared. Click reboot to finalize the reset."},9)
+    } else {
+        $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessage.Content = "Did not clear TPM."},9)
+    }
+})
+
+$SyncHash.Button_InitTPM.Add_click({
+    $TPMClearResult = [System.Windows.MessageBox]::Show("Are you sure you want to initialize the TPM?","Initialize TPM?",4)
+    if($TPMClearResult -eq 6){ # "6" is the return value for "yes"
+        # Testing thingy, don't want to clear my TPM in production
+        start powershell { [System.Windows.MessageBox]::Show("Just kidding!") } # Initialize-Tpm -AllowClear}
+        $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessage.Content = "TPM was initialized. Click reboot to finalize."},9)
+    } else {
+        $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessage.Content = "Did not initialize TPM."},9)
+    }
+})
