@@ -60,7 +60,7 @@ $PSThread_UI = [powershell]::Create().AddScript({
     </Grid.ColumnDefinitions>
             <Button Content="Import Wi-Fi profile(s)" x:Name="Button_ImportWiFiXML" HorizontalAlignment="Left" VerticalAlignment="Top" Height="32" Width="213" Margin="7,10,0,0" Grid.ColumnSpan="2" Grid.Column="1"/>
             <ComboBox Name="Combobox_WiFi" HorizontalAlignment="Left" Margin="7,47,0,0" VerticalAlignment="Top" Width="184" Grid.Column="1" Grid.ColumnSpan="2"/>
-            <Button Content="Connect to available Wi-Fi" x:Name="Button_ConnectToWiFi" HorizontalAlignment="Right" Margin="0,74,16,0" VerticalAlignment="Top" Height="32" Width="213" Grid.ColumnSpan="2" Grid.Column="1"/>
+            <Button Content="Connect" Name="Button_ConnectToWiFi" HorizontalAlignment="Right" Margin="0,74,16,0" VerticalAlignment="Top" Height="32" Width="213" Grid.ColumnSpan="2" Grid.Column="1"/>
             <Button Name="Button_RefreshWiFiProfiles" Grid.Column="2" Content="⟳" HorizontalAlignment="Left" Margin="179,47,0,0" VerticalAlignment="Top" Height="22" Width="24"/>
         </Grid>
     </GroupBox>
@@ -68,7 +68,7 @@ $PSThread_UI = [powershell]::Create().AddScript({
 
     <!--Right column-->
 
-    <GroupBox Header="TPM" Margin="266,4,282,304">
+    <GroupBox Header="TPM" HorizontalAlignment="Right" Margin="266,4,275,304">
         <Grid Height="86">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="20*"/>
@@ -288,13 +288,13 @@ $synchash.Button_ImportWiFiXML.Add_click({
 
 function loadWiFiProfiles {
     # Get WiFi profiles
-    $WiFiList = @()
+    $SyncHash.WiFiList = @()
     $WiFi = (netsh.exe wlan show profiles) -match "\s{2,}:\s"
     
     # Remove non-essential characters and add these to the array
     foreach ($WifiProfileName in $WiFi) {
         $TrimmedWiFiProfileName = ($WiFiProfileName.ToString()).Substring(27)
-        $WiFiList += $TrimmedWiFiProfileName
+        $SyncHash.WiFiList += $TrimmedWiFiProfileName
     }
 }
 
@@ -302,11 +302,12 @@ function loadWiFiProfiles {
 loadWiFiProfiles
 
 $SyncHash.NoProfiles = @("No wireless profiles available.")
-$SyncHash.WiFiArray = $WiFiList
-$SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.ItemsSource = $SyncHash.WiFiArray})
-if($Synchash.WiFiArray.Count -gt 0) {
+$SyncHash.WiFiArray = $SyncHash.WiFiList
+
+if($Synchash.WiFiArray.Count -gt 0) { # We have at least one profile in the array
     $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.SelectedIndex = 0})
-} else {
+    $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.ItemsSource = $SyncHash.WiFiArray})
+} else { # No profiles found
     $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.IsEnabled = $false})
     $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.ItemsSource = $SyncHash.NoProfiles})
     $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.SelectedIndex = 0})
@@ -321,4 +322,11 @@ $SyncHash.Button_RefreshWiFiProfiles.Add_click({
     $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.ItemsSource = $SyncHash.WiFiArray})
     $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.SelectedIndex = 0})
     $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.IsEnabled = $true})
+})
+
+$SyncHash.Button_ConnectToWiFi.Add_click({
+    $SelectedProfile = $SyncHash.Combobox_WiFi.SelectedValue
+    $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessage.Content = $SelectedProfile})
+    $returnMessage = netsh wlan connect name=$SelectedProfile
+    $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessage.Content = $returnMessage})
 })
