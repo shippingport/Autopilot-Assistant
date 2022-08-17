@@ -51,14 +51,17 @@ $PSThread_UI = [powershell]::Create().AddScript({
 <Grid>
 <!--Left column-->
 
-    <GroupBox Header="WiFi" Margin="10,4,538,304">
-        <Grid Height="86">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="20*"/>
-                <ColumnDefinition Width="213*"/>
-            </Grid.ColumnDefinitions>
-            <Button Content="Import Wi-Fi profile(s)" Name="Button_ImportWiFiXML" HorizontalAlignment="Left" VerticalAlignment="Top" Height="32" Width="213" Margin="10,10,0,0" Grid.ColumnSpan="2"/>
-            <Button Content="Connect to available Wi-Fi" Name="Button_ConnectToWiFi" HorizontalAlignment="Left" Margin="10,47,0,0" VerticalAlignment="Top" Height="32" Width="213" Grid.ColumnSpan="2"/>
+<GroupBox Header="WiFi" Margin="15,4,19,264" HorizontalAlignment="Left" Width="251">
+    <Grid Height="136" HorizontalAlignment="Left" Width="239">
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="3*"/>
+        <ColumnDefinition Width="17*"/>
+        <ColumnDefinition Width="214*"/>
+    </Grid.ColumnDefinitions>
+            <Button Content="Import Wi-Fi profile(s)" x:Name="Button_ImportWiFiXML" HorizontalAlignment="Left" VerticalAlignment="Top" Height="32" Width="213" Margin="7,10,0,0" Grid.ColumnSpan="2" Grid.Column="1"/>
+            <ComboBox Name="Combobox_WiFi" HorizontalAlignment="Left" Margin="7,47,0,0" VerticalAlignment="Top" Width="184" Grid.Column="1" Grid.ColumnSpan="2"/>
+            <Button Content="Connect to available Wi-Fi" x:Name="Button_ConnectToWiFi" HorizontalAlignment="Right" Margin="0,74,16,0" VerticalAlignment="Top" Height="32" Width="213" Grid.ColumnSpan="2" Grid.Column="1"/>
+            <Button Name="Button_RefreshWiFiProfiles" Grid.Column="2" Content="⟳" HorizontalAlignment="Left" Margin="179,47,0,0" VerticalAlignment="Top" Height="22" Width="24"/>
         </Grid>
     </GroupBox>
 
@@ -95,19 +98,19 @@ $PSThread_UI = [powershell]::Create().AddScript({
         <Label Content="Checklist" HorizontalAlignment="Left" Margin="-9,-4,0,0" VerticalAlignment="Top" Width="248" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontSize="16" FontWeight="Normal" FontFamily="Segoe UI Semibold"/>
 
         <!--Network indicator-->
-        <Ellipse Name="StatusIndicator_NetConnectionAvailable"  HorizontalAlignment="Left" Height="15" Width="15" Margin="-3,32,0,0" Fill="Red" VerticalAlignment="Top"/>
+        <Ellipse Name="StatusIndicator_NetConnectionAvailable"  HorizontalAlignment="Left" Height="15" Width="15" Margin="-3,32,0,0" Fill="Yellow" VerticalAlignment="Top"/>
         <Label Name="Label_NetworkStatus" Content="Checking internet connectivity..." HorizontalAlignment="Left" Margin="17,27,0,0" VerticalAlignment="Top" Width="212"/>
 
         <!--Intune servers pingable-->
-        <Ellipse Name="StatusIndicator_IntunePingResponse"  HorizontalAlignment="Left" Height="15" Width="15" Margin="-3,58,0,0" Fill="Red" VerticalAlignment="Top"/>
-        <Label Name="Label_IntunePingable" Content="Pinging Intune servers.." HorizontalAlignment="Left" Margin="17,51,0,0" VerticalAlignment="Top" Width="212"/>
+        <Ellipse Name="StatusIndicator_IntunePingResponse"  HorizontalAlignment="Left" Height="15" Width="15" Margin="-3,58,0,0" Fill="Yellow" VerticalAlignment="Top"/>
+        <Label Name="Label_IntunePingable" Content="Pinging Intune servers..." HorizontalAlignment="Left" Margin="17,51,0,0" VerticalAlignment="Top" Width="212"/>
 
         <!-- Certreq's AIK vertificate request result-->
-        <Ellipse Name="StatusIndicator_AIKCertRequestStatus" ToolTipService.ToolTip="Red = certificate was not issued. Consider clearing the TPM."  HorizontalAlignment="Left" Height="15" Width="15" Margin="-3,82,0,0" Fill="Orange" VerticalAlignment="Top"/>
+        <Ellipse Name="StatusIndicator_AIKCertRequestStatus" ToolTipService.ToolTip="Red = certificate was not issued. Consider clearing the TPM."  HorizontalAlignment="Left" Height="15" Width="15" Margin="-3,82,0,0" Fill="Yellow" VerticalAlignment="Top"/>
         <Label Content="AIK certificate status" Name="Label_CertReqLabel" HorizontalAlignment="Left" Margin="17,77,0,0" VerticalAlignment="Top" Width="212"/>
 
         <!-- AzureADJoined status -->
-        <Ellipse Name="StatusIndicator_AzureADJoinedIndicator" ToolTipService.ToolTip="" HorizontalAlignment="Left" Height="15" Width="15" Margin="-3,108,0,0" Fill="Orange" VerticalAlignment="Top"/>
+        <Ellipse Name="StatusIndicator_AzureADJoinedIndicator" ToolTipService.ToolTip="" HorizontalAlignment="Left" Height="15" Width="15" Margin="-3,108,0,0" Fill="Yellow" VerticalAlignment="Top"/>
         <Label Content="Azure AD joined status" Name="Label_AzureADJoinStatus" HorizontalAlignment="Left" Margin="17,103,0,0" VerticalAlignment="Top" Width="212"/>
     
         <!--Shutdown and reboot buttons-->
@@ -117,7 +120,6 @@ $PSThread_UI = [powershell]::Create().AddScript({
     </Grid>
     
     <Label Name="MainStatusMessage" Content="Starting up..." HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="533" Height="28"/>
-
 </Grid>
 </Window>
 "@
@@ -147,7 +149,7 @@ $PSThread_TrafficLightChecks = [powershell]::Create().AddScript({
     $NetworkConnection = Get-NetRoute | Where-Object DestinationPrefix -eq '0.0.0.0/0' | Get-NetIPInterface | Where-Object ConnectionState -eq 'Connected'
     if($NetworkConnection -ne $null) {
         $SyncHash.StatusIndicator_NetConnectionAvailable.Dispatcher.Invoke([action]{$SyncHash.StatusIndicator_NetConnectionAvailable.Fill = "Green"},9) # network is up
-        $SyncHash.Label_NetworkStatus.Dispatcher.Invoke([action]{$SyncHash.Label_NetworkStatus.Content = "Internet is connected."},9)
+        $SyncHash.Label_NetworkStatus.Dispatcher.Invoke([action]{$SyncHash.Label_NetworkStatus.Content = "Internet is connected"},9)
 
     } else {
         $SyncHash.StatusIndicator_NetConnectionAvailable.Dispatcher.Invoke([action]{$SyncHash.StatusIndicator_NetConnectionAvailable.Fill = "Red"},9) # network is down
@@ -255,4 +257,68 @@ $SyncHash.Button_InitTPM.Add_click({
     } else {
         $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessage.Content = "Did not initialize TPM."},9)
     }
+})
+
+$SyncHash.Button_Reboot.Add_click({
+    $rebootConfirmation = [System.Windows.MessageBox]::Show("Are you sure you want to reboot this computer?","Reboot",4)
+    if($rebootConfirmation -eq 6){ # "6" is the return value for "yes"
+        start powershell { exit } # Restart-Computer -Computername localhost}
+        $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessage.Content = "Rebooting..."},9)
+    } else {
+        $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessage.Content = "Reboot aborted."},9)
+    }
+})
+
+$SyncHash.Button_Shutdown.Add_click({
+    $shutdownConfirmation = [System.Windows.MessageBox]::Show("Are you sure you want to shut this computer down?","Shut down",4)
+    if($shutdownConfirmation -eq 6){ # "6" is the return value for "yes"
+        Start-Process powershell { exit } # Stop-Computer -Computername localhost}
+        $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessage.Content = "Starting shutdown..."},9)
+    } else {
+        $SyncHash.MainStatusMessage.Dispatcher.Invoke([action]{$SyncHash.MainStatusMessage.Content = "Shutdown aborted."},9)
+    }
+})
+
+# Doesn't work yet
+# function Get-ScriptDirectory { Split-Path $MyInvocation.ScriptName }
+
+$synchash.Button_ImportWiFiXML.Add_click({
+    Start-Process PowerShell -ArgumentList "-NoExit  '$PSScriptRoot/Scripts/Import-WiFiProfiles.ps1'"
+})
+
+function loadWiFiProfiles {
+    # Get WiFi profiles
+    $WiFiList = @()
+    $WiFi = (netsh.exe wlan show profiles) -match "\s{2,}:\s"
+    
+    # Remove non-essential characters and add these to the array
+    foreach ($WifiProfileName in $WiFi) {
+        $TrimmedWiFiProfileName = ($WiFiProfileName.ToString()).Substring(27)
+        $WiFiList += $TrimmedWiFiProfileName
+    }
+}
+
+# Get WiFi profiles at load
+loadWiFiProfiles
+
+$SyncHash.NoProfiles = @("No wireless profiles available.")
+$SyncHash.WiFiArray = $WiFiList
+$SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.ItemsSource = $SyncHash.WiFiArray})
+if($Synchash.WiFiArray.Count -gt 0) {
+    $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.SelectedIndex = 0})
+} else {
+    $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.IsEnabled = $false})
+    $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.ItemsSource = $SyncHash.NoProfiles})
+    $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.SelectedIndex = 0})
+}
+
+$SyncHash.Button_RefreshWiFiProfiles.Add_click({
+    $SyncHash.Loading = @("Loading...")
+    $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.IsEnabled = $false})
+    $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.ItemsSource = $SyncHash.Loading})
+    $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.SelectedIndex = 0})
+    loadWiFiProfiles
+    $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.ItemsSource = $SyncHash.WiFiArray})
+    $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.SelectedIndex = 0})
+    $SyncHash.Combobox_WiFi.Dispatcher.Invoke([action]{$SyncHash.Combobox_WiFi.IsEnabled = $true})
 })
