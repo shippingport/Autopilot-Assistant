@@ -1,6 +1,6 @@
 # Autopilot-Assistant
 
-Autopilot Assistant is a small script with a GUI that can be used to trigger some commonly used Autopilot-related automations.
+Autopilot Assistant is a small script with a GUI that can be used to trigger some commonly used Autopilot-related automations. The script is able to use multithreading using PowerShell Runspaces, although the implementation for this is still lacking. Not all features are currently in a working state, but feel free to use this as a base for your own customization.
 
 ### Usage
 From the Windows OOBE screen, press shift-F10 to open command prompt. Change to the directory hosting the Autopilot Assistant files, and type Autopilot.bat. This batch file will then call the PowerShell script and launch the GUI.
